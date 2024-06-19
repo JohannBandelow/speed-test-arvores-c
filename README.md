@@ -8,9 +8,8 @@ O resultado final do experimento deve ser apresentado em um relatório contendo 
 
 ## Para rodar:
 Execute os scripts:
-- make build
-&&
-- make run
+- ``` make build ```
+- ``` make run ```
 
 ## Thought Process:
 - Usamos o Docker para isolar ao máximo variáveis de Sistema Operacional, com o Docker ainda podemos limitar a quantidade de CPUs em 1 e a memória ram em 500mb
