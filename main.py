@@ -2,16 +2,21 @@ import csv
 import time
 import subprocess
 
+def setup():
+    subprocess.run(["mkdir", "-p", "build"])
+
 def run_b_tree():
-    #subprocess.run(["gcc", "-o", "b-tree", "b-tree.c", "utils.c"])
-    #subprocess.run(["./b-tree"])
+    #subprocess.run(["gcc", "-o", "build/b-tree", "b-tree.c", "utils.c"])
+    #subprocess.run(["./build/b-tree"])
     pass
 
 def run_avl_tree():
-    subprocess.run(["gcc", "-o", "avl-tree", "avl-tree.c", "utils.c"])
-    subprocess.run(["./avl-tree"])
+    subprocess.run(["gcc", "-o", "build/avl-tree", "avl-tree.c", "utils.c"])
+    subprocess.run(["./build/avl-tree"])
 
 def main():
+    setup()
+
     with open('execution_times.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(['Execução', 'Árvore AVL', 'Árvore B'])
