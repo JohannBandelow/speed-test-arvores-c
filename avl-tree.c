@@ -101,7 +101,7 @@ void inorder(struct No* root) {
 int main() {
     struct No* root = NULL;
 
-    FILE* file = fopen("values.txt", "r");
+    FILE* file = fopen("build/values.txt", "r");
     if (file == NULL) {
         printf("Failed to open the file.\n");
         return 1;
