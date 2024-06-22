@@ -188,6 +188,30 @@ void inserir(ArvoreB* arvore, int chave) {
     inserirRecursivo(arvore, no, NULL, chave);
 }
 
+void remover(ArvoreB* arvore, int chave) {
+    No* no = localizaNo(arvore, chave);
+    int i = pesquisaBinaria(no, chave);
+
+    if (i < no->total && no->chaves[i] == chave) {
+        if (no->filhos[i] == NULL) {
+            for (int j = i; j < no->total - 1; j++) {
+                no->chaves[j] = no->chaves[j + 1];
+                no->filhos[j] = no->filhos[j + 1];
+            }
+            no->total--;
+        } else {
+            No* antecessor = no->filhos[i];
+            while (antecessor->filhos[antecessor->total] != NULL) {
+                antecessor = antecessor->filhos[antecessor->total];
+            }
+            no->chaves[i] = antecessor->chaves[antecessor->total - 1];
+            remover(arvore, antecessor->chaves[antecessor->total - 1]);
+        }
+    } else {
+        remover(arvore, chave);
+    }
+}
+
 int main(int argc, char *argv[]) {
     int ordem = atoi(argv[1]);
 
@@ -204,5 +228,11 @@ int main(int argc, char *argv[]) {
         inserir(tree, value);
     }
 
+    while (fscanf(file, "%d", &value) != EOF) {
+        remover(tree, value);
+    }
+    
+
     fclose(file);
-    return 0;}
+    return 0;
+}

@@ -3,20 +3,20 @@
 
 typedef enum { RED, BLACK } Color;
 
-typedef struct Node {
+typedef struct No {
     int data;
     Color color;
-    struct Node* parent;
-    struct Node* left;
-    struct Node* right;
-} Node;
+    struct No* parent;
+    struct No* left;
+    struct No* right;
+} No;
 
 typedef struct {
-    Node* root;
-} RedBlackTree;
+    No* raiz;
+} ArvoreRubroNegra;
 
-Node* createNode(int data) {
-    Node* newNode = (Node*)malloc(sizeof(Node));
+No* createNode(int data) {
+    No* newNode = (No*)malloc(sizeof(No));
     newNode->data = data;
     newNode->color = RED;
     newNode->parent = NULL;
@@ -25,21 +25,21 @@ Node* createNode(int data) {
     return newNode;
 }
 
-RedBlackTree* createRedBlackTree() {
-    RedBlackTree* newTree = (RedBlackTree*)malloc(sizeof(RedBlackTree));
-    newTree->root = NULL;
+ArvoreRubroNegra* criaArvoreRubroNegra() {
+    ArvoreRubroNegra* newTree = (ArvoreRubroNegra*)malloc(sizeof(ArvoreRubroNegra));
+    newTree->raiz = NULL;
     return newTree;
 }
 
-void leftRotate(RedBlackTree* tree, Node* x) {
-    Node* y = x->right;
+void leftRotate(ArvoreRubroNegra* tree, No* x) {
+    No* y = x->right;
     x->right = y->left;
     if (y->left != NULL) {
         y->left->parent = x;
     }
     y->parent = x->parent;
     if (x->parent == NULL) {
-        tree->root = y;
+        tree->raiz = y;
     } else if (x == x->parent->left) {
         x->parent->left = y;
     } else {
@@ -49,15 +49,15 @@ void leftRotate(RedBlackTree* tree, Node* x) {
     x->parent = y;
 }
 
-void rightRotate(RedBlackTree* tree, Node* y) {
-    Node* x = y->left;
+void rightRotate(ArvoreRubroNegra* tree, No* y) {
+    No* x = y->left;
     y->left = x->right;
     if (x->right != NULL) {
         x->right->parent = y;
     }
     x->parent = y->parent;
     if (y->parent == NULL) {
-        tree->root = x;
+        tree->raiz = x;
     } else if (y == y->parent->left) {
         y->parent->left = x;
     } else {
@@ -67,10 +67,10 @@ void rightRotate(RedBlackTree* tree, Node* y) {
     y->parent = x;
 }
 
-void insertFixup(RedBlackTree* tree, Node* z) {
+void insertFixup(ArvoreRubroNegra* tree, No* z) {
     while (z->parent != NULL && z->parent->color == RED) {
         if (z->parent == z->parent->parent->left) {
-            Node* y = z->parent->parent->right;
+            No* y = z->parent->parent->right;
             if (y != NULL && y->color == RED) {
                 z->parent->color = BLACK;
                 y->color = BLACK;
@@ -86,7 +86,7 @@ void insertFixup(RedBlackTree* tree, Node* z) {
                 rightRotate(tree, z->parent->parent);
             }
         } else {
-            Node* y = z->parent->parent->left;
+            No* y = z->parent->parent->left;
             if (y != NULL && y->color == RED) {
                 z->parent->color = BLACK;
                 y->color = BLACK;
@@ -103,13 +103,13 @@ void insertFixup(RedBlackTree* tree, Node* z) {
             }
         }
     }
-    tree->root->color = BLACK;
+    tree->raiz->color = BLACK;
 }
 
-void inserir(RedBlackTree* tree, int data) {
-    Node* z = createNode(data);
-    Node* y = NULL;
-    Node* x = tree->root;
+void inserir(ArvoreRubroNegra* tree, int data) {
+    No* z = createNode(data);
+    No* y = NULL;
+    No* x = tree->raiz;
 
     while (x != NULL) {
         y = x;
@@ -122,7 +122,7 @@ void inserir(RedBlackTree* tree, int data) {
 
     z->parent = y;
     if (y == NULL) {
-        tree->root = z;
+        tree->raiz = z;
     } else if (z->data < y->data) {
         y->left = z;
     } else {
@@ -132,7 +132,7 @@ void inserir(RedBlackTree* tree, int data) {
     insertFixup(tree, z);
 }
 
-void inorderTraversal(Node* node) {
+void inorderTraversal(No* node) {
     if (node != NULL) {
         inorderTraversal(node->left);
         printf("%d ", node->data);
@@ -140,8 +140,131 @@ void inorderTraversal(Node* node) {
     }
 }
 
+No* treeMinimum(No* node) {
+    while (node->left != NULL) {
+        node = node->left;
+    }
+    return node;
+}
+
+void transplant(ArvoreRubroNegra* tree, No* u, No* v) {
+    if (u->parent == NULL) {
+        tree->raiz = v;
+    } else if (u == u->parent->left) {
+        u->parent->left = v;
+    } else {
+        u->parent->right = v;
+    }
+    if (v != NULL) {
+        v->parent = u->parent;
+    }
+}
+
+void deleteFixup(ArvoreRubroNegra* tree, No* x) {
+    while (x != tree->raiz && x->color == BLACK) {
+        if (x == x->parent->left) {
+            No* w = x->parent->right;
+            if (w->color == RED) {
+                w->color = BLACK;
+                x->parent->color = RED;
+                leftRotate(tree, x->parent);
+                w = x->parent->right;
+            }
+            if (w->left->color == BLACK && w->right->color == BLACK) {
+                w->color = RED;
+                x = x->parent;
+            } else {
+                if (w->right->color == BLACK) {
+                    w->left->color = BLACK;
+                    w->color = RED;
+                    rightRotate(tree, w);
+                    w = x->parent->right;
+                }
+                w->color = x->parent->color;
+                x->parent->color = BLACK;
+                w->right->color = BLACK;
+                leftRotate(tree, x->parent);
+                x = tree->raiz;
+            }
+        } else {
+            No* w = x->parent->left;
+            if (w->color == RED) {
+                w->color = BLACK;
+                x->parent->color = RED;
+                rightRotate(tree, x->parent);
+                w = x->parent->left;
+            }
+            if (w->right->color == BLACK && w->left->color == BLACK) {
+                w->color = RED;
+                x = x->parent;
+            } else {
+                if (w->left->color == BLACK) {
+                    w->right->color = BLACK;
+                    w->color = RED;
+                    leftRotate(tree, w);
+                    w = x->parent->left;
+                }
+                w->color = x->parent->color;
+                x->parent->color = BLACK;
+                w->left->color = BLACK;
+                rightRotate(tree, x->parent);
+                x = tree->raiz;
+            }
+        }
+    }
+    x->color = BLACK;
+}
+
+void remover(ArvoreRubroNegra* tree, int data) {
+    No* z = tree->raiz;
+    while (z != NULL) {
+        if (data == z->data) {
+            break;
+        } else if (data < z->data) {
+            z = z->left;
+        } else {
+            z = z->right;
+        }
+    }
+    if (z == NULL) {
+        printf("Node not found.\n");
+        return;
+    }
+    No* y = z;
+    Color yOriginalColor = y->color;
+    No* x;
+    if (z->left == NULL) {
+        x = z->right;
+        transplant(tree, z, z->right);
+    } else if (z->right == NULL) {
+        x = z->left;
+        transplant(tree, z, z->left);
+    } else {
+        y = treeMinimum(z->right);
+        yOriginalColor = y->color;
+        x = y->right;
+        if (y->parent == z) {
+            if (x != NULL) {
+                x->parent = y;
+            }
+        } else {
+            transplant(tree, y, y->right);
+            y->right = z->right;
+            y->right->parent = y;
+        }
+        transplant(tree, z, y);
+        y->left = z->left;
+        y->left->parent = y;
+        y->color = z->color;
+    }
+    free(z);
+    if (yOriginalColor == BLACK) {
+        deleteFixup(tree, x);
+    }
+}
+
 int main() {
-    RedBlackTree* tree = createRedBlackTree();
+    ArvoreRubroNegra* tree = criaArvoreRubroNegra();
 
     FILE* file = fopen("build/values.txt", "r");
     if (file == NULL) {
@@ -152,6 +275,10 @@ int main() {
     int value;
     while (fscanf(file, "%d", &value) != EOF) {
         inserir(tree, value);
+    }
+
+    while(fscanf(file, "%d", &value) != EOF) {
+        remover(tree, value);
     }
 
     fclose(file);
