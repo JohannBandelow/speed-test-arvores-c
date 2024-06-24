@@ -32,7 +32,7 @@ def main():
             b5_tree_times = []
             b10_tree_times = []
 
-            # Executa 500 vezes para cada quantidade, de forma a suavizar o gráfico
+            # Executa 100 vezes para cada quantidade, de forma a suavizar o gráfico
             for _ in range(100):
                 start_time = time.time()
                 run_avl_tree()
