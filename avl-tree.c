@@ -163,22 +163,42 @@ struct No* remover(struct No* raiz, int key) {
     return raiz;
 }
 
-int main() {
+void executaRotinaDeInsercao(FILE *file) {
     struct No *raiz = NULL;
+    int value;
+    while (fscanf(file, "%d", &value) != EOF) {
+        raiz = inserir(raiz, value);
+    }
+}
 
+void executaRotinaDeRemocao(FILE *file) {
+    struct No *raiz = NULL;
+    int value;
+
+    while (fscanf(file, "%d", &value) != EOF) {
+        raiz = inserir(raiz, value);
+    }
+
+    while (fscanf(file, "%d", &value) != EOF) {
+        raiz = remover(raiz, value);
+    }
+}
+
+int main(int argc, char *argv[]) {
     FILE *file = fopen("build/values.txt", "r");
     if (file == NULL) {
         printf("Falha ao abrir o arquivo.\n");
         return 1;
     }
 
-    int value;
-    while (fscanf(file, "%d", &value) != EOF) {
-        raiz = inserir(raiz, value);
+    int rotina = atoi(argv[1]);
+
+    if (rotina == 1) {
+        executaRotinaDeInsercao(file);
     }
 
-    while (raiz != NULL) {
-        raiz = remover(raiz, raiz->key);
+    if (rotina == 2) {
+        executaRotinaDeRemocao(file);
     }
 
     fclose(file);

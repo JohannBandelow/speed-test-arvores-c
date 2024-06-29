@@ -263,22 +263,42 @@ void remover(ArvoreRubroNegra* tree, int data) {
     }
 }
 
-int main() {
+void executaRotinaDeInsercao(FILE *file) {
     ArvoreRubroNegra* tree = criaArvoreRubroNegra();
-
-    FILE* file = fopen("build/values.txt", "r");
-    if (file == NULL) {
-        printf("Failed to open the file.\n");
-        return 1;
-    }
-
     int value;
     while (fscanf(file, "%d", &value) != EOF) {
         inserir(tree, value);
     }
+}
 
-    while(fscanf(file, "%d", &value) != EOF) {
+void executaRotinaDeRemocao(FILE *file) {
+    ArvoreRubroNegra* tree = criaArvoreRubroNegra();
+    int value;
+
+    while (fscanf(file, "%d", &value) != EOF) {
+        inserir(tree, value);
+    }
+
+    while (fscanf(file, "%d", &value) != EOF) {
         remover(tree, value);
+    }
+}
+
+int main(int argc, char *argv[]) {
+    FILE *file = fopen("build/values.txt", "r");
+    if (file == NULL) {
+        printf("Falha ao abrir o arquivo.\n");
+        return 1;
+    }
+
+    int rotina = atoi(argv[1]);
+
+    if (rotina == 1) {
+        executaRotinaDeInsercao(file);
+    }
+
+    if (rotina == 2) {
+        executaRotinaDeRemocao(file);
     }
 
     fclose(file);
