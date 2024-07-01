@@ -8,7 +8,7 @@ INSERTION_TIMES_CSV = 'generated/insertion_times.csv'
 DELETION_TIMES_CSV = 'generated/deletion_times.csv'
 INSERCAO_JPG = 'generated/insercao.jpg'
 DELECAO_JPG = 'generated/delecao.jpg'
-FATOR_DE_SUAVIZACAO = 10
+FATOR_DE_SUAVIZACAO = 100
 
 class Operation:
     INSERT = 1

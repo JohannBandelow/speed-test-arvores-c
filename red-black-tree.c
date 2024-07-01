@@ -59,6 +59,7 @@ NoRN* criarNoRN(ArvoreRN* arvoreRN, NoRN* pai, int valor) {
 NoRN* adicionarNoRN(ArvoreRN* arvoreRN, NoRN* noRN, int valor) {
     rnCount++;
     if (valor > noRN->valor) {
+        rnCount++;
         if (noRN->direita == arvoreRN->nulo) {
             noRN->direita = criarNoRN(arvoreRN, noRN, valor);     
             noRN->direita->cor = Vermelho;       
@@ -68,6 +69,7 @@ NoRN* adicionarNoRN(ArvoreRN* arvoreRN, NoRN* noRN, int valor) {
             return adicionarNoRN(arvoreRN, noRN->direita, valor);
         }
     } else {
+        rnCount++;
         if (noRN->esquerda == arvoreRN->nulo) {
             noRN->esquerda = criarNoRN(arvoreRN, noRN, valor);
             noRN->esquerda->cor = Vermelho;
@@ -115,6 +117,7 @@ void remover(ArvoreRN* arvoreRN, int valor) {
                 break;
             } else if (no->esquerda != arvoreRN->nulo && no->direita != arvoreRN->nulo) {
                 NoRN* sucessor = no->direita;
+                rnCount++;
                 while (sucessor->esquerda != arvoreRN->nulo) {
                     rnCount++;
                     sucessor = sucessor->esquerda;
@@ -127,6 +130,7 @@ void remover(ArvoreRN* arvoreRN, int valor) {
                 NoRN* filho = (no->esquerda != arvoreRN->nulo) ? no->esquerda : no->direita;
                 filho->pai = no->pai;
 
+                rnCount++;
                 if (no->pai == arvoreRN->nulo) {
                     arvoreRN->raiz = filho;
                 } else if (no == no->pai->esquerda) {
@@ -145,10 +149,14 @@ void remover(ArvoreRN* arvoreRN, int valor) {
 }
 
 NoRN* localizarRN(ArvoreRN* arvoreRN, int valor) {
+    rnCount++;
     if (!vaziaRN(arvoreRN)) {
         NoRN* noRN = arvoreRN->raiz;
 
+        rnCount++;
         while (noRN != arvoreRN->nulo) {
+            rnCount++;
+            rnCount++;
             if (noRN->valor == valor) {
                 return noRN;
             } else {
@@ -161,9 +169,8 @@ NoRN* localizarRN(ArvoreRN* arvoreRN, int valor) {
 }
 
 void percorrerProfundidadeInOrder(ArvoreRN* arvoreRN, NoRN* noRN, void (*callback)(int)) {
+    rnCount++;
     if (noRN != arvoreRN->nulo) {
-        
-        
         percorrerProfundidadeInOrder(arvoreRN, noRN->esquerda,callback);
         callback(noRN->valor);
         percorrerProfundidadeInOrder(arvoreRN, noRN->direita,callback);
@@ -171,6 +178,7 @@ void percorrerProfundidadeInOrder(ArvoreRN* arvoreRN, NoRN* noRN, void (*callbac
 }
 
 void percorrerProfundidadePreOrder(ArvoreRN* arvoreRN, NoRN* noRN, void (*callback)(int)) {
+    rnCount++;
     if (noRN != arvoreRN->nulo) {
         callback(noRN->valor);
         percorrerProfundidadePreOrder(arvoreRN, noRN->esquerda,callback);
@@ -179,6 +187,7 @@ void percorrerProfundidadePreOrder(ArvoreRN* arvoreRN, NoRN* noRN, void (*callba
 }
 
 void percorrerProfundidadePosOrder(ArvoreRN* arvoreRN, NoRN* noRN, void (callback)(int)) {
+    rnCount++;
     if (noRN != arvoreRN->nulo) {
         percorrerProfundidadePosOrder(arvoreRN, noRN->esquerda,callback);
         percorrerProfundidadePosOrder(arvoreRN, noRN->direita,callback);
@@ -191,25 +200,26 @@ void visitarRN(int valor){
 }
 
 void balancearRN(ArvoreRN* arvoreRN, NoRN* noRN) {
+    rnCount++;
     while (noRN->pai != NULL && noRN->pai->cor == Vermelho) {
+        rnCount++;
         rnCount++;
         if (noRN->pai == noRN->pai->pai->esquerda) {
             NoRN *tio = noRN->pai->pai->direita;
             
+            rnCount++;
             if (tio->cor == Vermelho) {
-                rnCount++;
                 tio->cor = Preto;
                 noRN->pai->cor = Preto; 
 
                 noRN->pai->pai->cor = Vermelho;
                 noRN = noRN->pai->pai;
             } else {
+                rnCount++;
                 if (noRN == noRN->pai->direita) {
-                    rnCount++;
                     noRN = noRN->pai;
                     rotacionarEsquerdaRN(arvoreRN, noRN);
                 } else {
-                    rnCount++;
                     noRN->pai->cor = Preto; 
                     noRN->pai->pai->cor = Vermelho;
                     rotacionarDireitaRN(arvoreRN, noRN->pai->pai);
@@ -218,20 +228,19 @@ void balancearRN(ArvoreRN* arvoreRN, NoRN* noRN) {
         } else {
             NoRN *tio = noRN->pai->pai->esquerda;
             
+            rnCount++;
             if (tio->cor == Vermelho) {
-                rnCount++;
                 tio->cor = Preto;
                 noRN->pai->cor = Preto; 
 
                 noRN->pai->pai->cor = Vermelho;
                 noRN = noRN->pai->pai;
             } else {
+                rnCount++;
                 if (noRN == noRN->pai->esquerda) {
-                    rnCount++;
                     noRN = noRN->pai;
                     rotacionarDireitaRN(arvoreRN, noRN);
                 } else {
-                    rnCount++;
                     noRN->pai->cor = Preto; 
                     noRN->pai->pai->cor = Vermelho;
                     rotacionarEsquerdaRN(arvoreRN, noRN->pai->pai);
@@ -243,16 +252,17 @@ void balancearRN(ArvoreRN* arvoreRN, NoRN* noRN) {
 }
 
 void rotacionarEsquerdaRN(ArvoreRN* arvoreRN, NoRN* noRN) {
-    rnCount++;
     NoRN* direita = noRN->direita;
     noRN->direita = direita->esquerda; 
 
+    rnCount++;
     if (direita->esquerda != arvoreRN->nulo) {
         direita->esquerda->pai = noRN;
     }
 
     direita->pai = noRN->pai;
     
+    rnCount++;
     if (noRN->pai == arvoreRN->nulo) {
         arvoreRN->raiz = direita;
     } else if (noRN == noRN->pai->esquerda) {
@@ -266,16 +276,17 @@ void rotacionarEsquerdaRN(ArvoreRN* arvoreRN, NoRN* noRN) {
 }
 
 void rotacionarDireitaRN(ArvoreRN* arvoreRN, NoRN* noRN) {
-    rnCount++;
     NoRN* esquerda = noRN->esquerda;
     noRN->esquerda = esquerda->direita;
     
+    rnCount++;
     if (esquerda->direita != arvoreRN->nulo) {
         esquerda->direita->pai = noRN;
     }
     
     esquerda->pai = noRN->pai;
     
+    rnCount++;
     if (noRN->pai == arvoreRN->nulo) {
         arvoreRN->raiz = esquerda;
     } else if (noRN == noRN->pai->esquerda) {

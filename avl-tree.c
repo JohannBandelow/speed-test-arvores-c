@@ -86,7 +86,8 @@ void adicionar(Arvore* arvore, int valor) {
 
 No* localizar(No* no, int valor) {
     while (no != NULL) {
-        avlCount+=2; //While + if
+        avlCount++;
+        avlCount++;
         if (no->valor == valor) {
             return no;
         }
@@ -111,6 +112,7 @@ void visitar(int valor){
 }
 
 void balanceamento(Arvore* arvore, No* no) {
+    avlCount++;
     while (no != NULL) {
         avlCount++;
         no->altura = max(altura(no->esquerda), altura(no->direita)) + 1;
@@ -239,6 +241,7 @@ void remover(Arvore* arvoreAVL, int valor) {
 
     avlCount++;
     while (no != NULL) {
+        avlCount++;
         avlCount++;
         if (no->esquerda == NULL && no->direita == NULL) {
             avlCount++;
