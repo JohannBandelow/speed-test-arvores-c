@@ -1,186 +1,310 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include "utils.h"
+#include <string.h>
+#include <stdio.h>
 
-struct No {
-    int key;
-    struct No* left;
-    struct No* right;
-    int height;
-};
+long int avlCount = 0;
 
-struct No* criaNo(int key) {
-    struct No* novoNo = (struct No*)malloc(sizeof(struct No));
-    novoNo->key = key;
-    novoNo->left = NULL;
-    novoNo->right = NULL;
-    novoNo->height = 1;
-    return novoNo;
+typedef struct no {
+    struct no* pai;
+    struct no* esquerda;
+    struct no* direita;
+    int valor;
+    int altura;
+} No;
+
+typedef struct arvore {
+    struct no* raiz;
+} Arvore;
+
+int max(int a, int b) {
+    avlCount++;
+    return a > b ? a : b;
 }
 
-int altura(struct No* no) {
-    if (no == NULL) {
-        return 0;
-    }
-    return no->height;
+void balanceamento(Arvore*, No*);
+int altura(No*);
+int fb(No*);
+No* rsd(Arvore*, No*);
+No* rse(Arvore*, No*);
+No* rdd(Arvore*, No*);
+No* rde(Arvore*, No*);
+
+Arvore* criar() {
+    Arvore *arvore = malloc(sizeof(Arvore));
+    arvore->raiz = NULL;
+  
+    return arvore;
 }
 
-int fatorBalanceamento(struct No* no) {
-    if (no == NULL) {
-        return 0;
-    }
-    return altura(no->left) - altura(no->right);
+int vazia(Arvore* arvore) {
+    return arvore->raiz == NULL;
 }
 
-struct No* rotacaoDireita(struct No* y) {
-    struct No* x = y->left;
-    struct No* T2 = x->right;
+void adicionar(Arvore* arvore, int valor) {
+    No* no = arvore->raiz;
 
-    x->right = y;
-    y->left = T2;
-
-    y->height = max(altura(y->left), altura(y->right)) + 1;
-    x->height = max(altura(x->left), altura(x->right)) + 1;
-
-    return x;
-}
-
-struct No* rotacaoEsquerda(struct No* x) {
-    struct No* y = x->right;
-    struct No* T2 = y->left;
-
-    y->left = x;
-    x->right = T2;
-
-    x->height = max(altura(x->left), altura(x->right)) + 1;
-    y->height = max(altura(y->left), altura(y->right)) + 1;
-
-    return y;
-}
-
-struct No* inserir(struct No* no, int key) {
-    if (no == NULL) {
-        return criaNo(key);
-    }
-
-    if (key < no->key) {
-        no->left = inserir(no->left, key);
-    } else if (key > no->key) {
-        no->right = inserir(no->right, key);
-    } else {
-        return no;
-    }
-
-    no->height = 1 + max(altura(no->left), altura(no->right));
-
-    int balanceamento = fatorBalanceamento(no);
-
-    if (balanceamento > 1 && key < no->left->key) {
-        return rotacaoDireita(no);
-    }
-
-    if (balanceamento < -1 && key > no->right->key) {
-        return rotacaoEsquerda(no);
-    }
-
-    if (balanceamento > 1 && key > no->left->key) {
-        no->left = rotacaoEsquerda(no->left);
-        return rotacaoDireita(no);
-    }
-
-    if (balanceamento < -1 && key < no->right->key) {
-        no->right = rotacaoDireita(no->right);
-        return rotacaoEsquerda(no);
-    }
-
-    return no;
-}
-
-struct No* encontrarMinimo(struct No* no) {
-    struct No* atual = no;
-    while (atual->left != NULL) {
-        atual = atual->left;
-    }
-    return atual;
-}
-
-struct No* remover(struct No* raiz, int key) {
-    if (raiz == NULL) {
-        return raiz;
-    }
-
-    if (key < raiz->key) {
-        raiz->left = remover(raiz->left, key);
-    } else if (key > raiz->key) {
-        raiz->right = remover(raiz->right, key);
-    } else {
-        if ((raiz->left == NULL) || (raiz->right == NULL)) {
-            struct No* temp = raiz->left ? raiz->left : raiz->right;
-
-            if (temp == NULL) {
-                temp = raiz;
-                raiz = NULL;
+    while (no != NULL) {
+        avlCount++;
+        if (valor > no->valor) {
+            avlCount++;
+            if (no->direita != NULL) {
+                no = no->direita;
             } else {
-                *raiz = *temp;
+                break;
             }
-
-            free(temp);
         } else {
-            struct No* temp = encontrarMinimo(raiz->right);
-
-            raiz->key = temp->key;
-
-            raiz->right = remover(raiz->right, temp->key);
+            avlCount++;
+            if (no->esquerda != NULL) {
+                no = no->esquerda;
+            } else {
+                break;
+            }
         }
     }
 
-    if (raiz == NULL) {
-        return raiz;
+    No* novo = malloc(sizeof(No));
+    novo->valor = valor;
+    novo->pai = no;
+    novo->esquerda = NULL;
+    novo->direita = NULL;
+    novo->altura = 1;
+
+    avlCount++;
+    if (no == NULL) {    
+        arvore->raiz = novo;
+    } else {
+        avlCount++;
+        if (valor > no->valor) {
+            no->direita = novo;
+        } else {
+            no->esquerda = novo;
+        }
+        
+        balanceamento(arvore, no);
+    }
+}
+
+No* localizar(No* no, int valor) {
+    while (no != NULL) {
+        avlCount+=2; //While + if
+        if (no->valor == valor) {
+            return no;
+        }
+        
+        avlCount++;
+        no = valor < no->valor ? no->esquerda : no->direita;
     }
 
-    raiz->height = 1 + max(altura(raiz->left), altura(raiz->right));
+    return NULL;
+}
 
-    int balanceamento = fatorBalanceamento(raiz);
+void percorrer(No* no, void (*callback)(int)) {
+    if (no != NULL) {
+        percorrer(no->esquerda,callback);
+        callback(no->valor);
+        percorrer(no->direita,callback);
+    }
+}
 
-    if (balanceamento > 1 && fatorBalanceamento(raiz->left) >= 0) {
-        return rotacaoDireita(raiz);
+void visitar(int valor){
+    printf("%d ", valor);
+}
+
+void balanceamento(Arvore* arvore, No* no) {
+    while (no != NULL) {
+        avlCount++;
+        no->altura = max(altura(no->esquerda), altura(no->direita)) + 1;
+        int fator = fb(no);
+
+        avlCount++;
+        if (fator > 1) {
+            avlCount++;
+            if (fb(no->esquerda) > 0) {
+                rsd(arvore, no); 
+            } else {
+                rdd(arvore, no);
+            }
+        } else if (fator < -1) {
+            avlCount++;
+            if (fb(no->direita) < 0) {
+                rse(arvore, no);
+            } else {
+                rde(arvore, no);
+            }
+        }
+
+        no = no->pai; 
+    }
+}
+
+int altura(No* no){
+    avlCount++;
+    return no != NULL ? no->altura : 0;
+}
+
+int fb(No* no) {
+    int esquerda = 0,direita = 0;
+  
+    avlCount++;
+    if (no->esquerda != NULL) {
+        esquerda = no->esquerda->altura;
     }
 
-    if (balanceamento > 1 && fatorBalanceamento(raiz->left) < 0) {
-        raiz->left = rotacaoEsquerda(raiz->left);
-        return rotacaoDireita(raiz);
+    avlCount++;
+    if (no->direita != NULL) {
+        direita = no->direita->altura;
+    }
+  
+    return esquerda - direita;
+}
+
+No* rse(Arvore* arvore, No* no) {
+    No* pai = no->pai;
+    No* direita = no->direita;
+
+    avlCount++;
+    if (direita->esquerda != NULL) {
+        direita->esquerda->pai = no;
+    } 
+  
+    no->direita = direita->esquerda;
+    no->pai = direita;
+
+    direita->esquerda = no;
+    direita->pai = pai;
+
+    avlCount++;
+    if (pai == NULL) {
+        arvore->raiz = direita;
+    } else {
+        avlCount++;
+        if (pai->esquerda == no) {
+            pai->esquerda = direita;
+        } else {
+            pai->direita = direita;
+        }
     }
 
-    if (balanceamento < -1 && fatorBalanceamento(raiz->right) <= 0) {
-        return rotacaoEsquerda(raiz);
+    no->altura = max(altura(no->esquerda), altura(no->direita)) + 1;
+    direita->altura = max(altura(direita->esquerda), altura(direita->direita)) + 1;
+
+    return direita;
+}
+
+No* rsd(Arvore* arvore, No* no) {
+    No* pai = no->pai;
+    No* esquerda = no->esquerda;
+
+    avlCount++;
+    if (esquerda->direita != NULL) {
+        esquerda->direita->pai = no;
+    } 
+  
+    no->esquerda = esquerda->direita;
+    no->pai = esquerda;
+  
+    esquerda->direita = no;
+    esquerda->pai = pai;
+
+    avlCount++;
+    if (pai == NULL) {
+        arvore->raiz = esquerda;
+    } else {
+        avlCount++;
+        if (pai->esquerda == no) {
+            pai->esquerda = esquerda;
+        } else {
+            pai->direita = esquerda;
+        }
     }
 
-    if (balanceamento < -1 && fatorBalanceamento(raiz->right) > 0) {
-        raiz->right = rotacaoDireita(raiz->right);
-        return rotacaoEsquerda(raiz);
+    no->altura = max(altura(no->esquerda), altura(no->direita)) + 1;
+    esquerda->altura = max(altura(esquerda->esquerda), altura(esquerda->direita)) + 1;
+
+    return esquerda;
+}
+
+No* rde(Arvore* arvore, No* no) {
+    no->direita = rsd(arvore, no->direita);
+    return rse(arvore, no);
+}
+
+No* rdd(Arvore* arvore, No* no) {
+    no->esquerda = rse(arvore, no->esquerda);
+    return rsd(arvore, no);
+}
+
+void remover(Arvore* arvoreAVL, int valor) {
+    No* no = localizar(arvoreAVL->raiz, valor);
+
+    avlCount++;
+    while (no != NULL) {
+        avlCount++;
+        if (no->esquerda == NULL && no->direita == NULL) {
+            avlCount++;
+            if (no->pai == NULL) {
+                arvoreAVL->raiz = NULL;
+            } else {
+                avlCount++;
+                if (no->pai->esquerda == no)
+                    no->pai->esquerda = NULL;
+                else
+                    no->pai->direita = NULL;
+            }
+            free(no);
+            break;
+        } else if (no->esquerda != NULL && no->direita != NULL) {
+            No* sucessor = no->direita;
+            avlCount++;
+            while (sucessor->esquerda != NULL) {
+                avlCount++;
+                sucessor = sucessor->esquerda;
+            }
+
+            no->valor = sucessor->valor;
+            no = sucessor;
+        } else {
+            No* filho = (no->esquerda != NULL) ? no->esquerda : no->direita;
+            filho->pai = no->pai;
+
+            avlCount++;
+            if (no->pai == NULL) {
+                arvoreAVL->raiz = filho;
+            } else {
+                if (no->pai->esquerda == no)
+                    no->pai->esquerda = filho;
+                else
+                    no->pai->direita = filho;
+            }
+
+            free(no);
+            break;
+        }
     }
 
-    return raiz;
+    if (no != NULL) {
+        balanceamento(arvoreAVL, arvoreAVL->raiz);
+    }
 }
 
 void executaRotinaDeInsercao(FILE *file) {
-    struct No *raiz = NULL;
+    Arvore *arvore = criar();
     int value;
     while (fscanf(file, "%d", &value) != EOF) {
-        raiz = inserir(raiz, value);
+       adicionar(arvore, value);
     }
 }
 
 void executaRotinaDeRemocao(FILE *file) {
-    struct No *raiz = NULL;
+    Arvore *arvore = criar();
     int value;
 
     while (fscanf(file, "%d", &value) != EOF) {
-        raiz = inserir(raiz, value);
+        adicionar(arvore, value);
     }
 
     while (fscanf(file, "%d", &value) != EOF) {
-        raiz = remover(raiz, value);
+        remover(arvore, value);
     }
 }
 
@@ -200,6 +324,8 @@ int main(int argc, char *argv[]) {
     if (rotina == 2) {
         executaRotinaDeRemocao(file);
     }
+
+    printf("%ld\n", avlCount);
 
     fclose(file);
     return 0;
