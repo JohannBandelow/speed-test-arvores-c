@@ -12,9 +12,4 @@ Execute os scripts:
 - ``` make run ```
 
 ## Thought Process:
-- Usamos o Docker para isolar ao máximo variáveis de Sistema Operacional, com o Docker ainda podemos limitar a quantidade de CPUs em 1 e a memória ram em 500mb
 - Decidimos que para um teste mais justo com as versões da árvore, todos as árvores vão rodar com o mesmo dataset para cada iteração
-
-## Dúvidas:
-- Qual a melhor forma de medir esforço computacional? (tempo, ram)
-- Qual a melhor forma do python gerar os dados e o C ler? (arquivo? várias entradas?)
